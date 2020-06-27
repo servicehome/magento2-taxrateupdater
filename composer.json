@@ -1,0 +1,38 @@
+{
+  "name": "servicehome/magento2-taxrateupdater",
+  "description": "Set tax rate per cronjob.",
+  "keywords": [
+    "magento",
+    "magento2 extension",
+    "magento 2 extension",
+    "extension",
+    "module",
+    "magento2 module",
+    "magento 2 module",
+    "tax rate"
+  ],
+  "type": "magento2-module",
+  "version": "0.0.1",
+  "homepage": "https://servicehome.net/",
+  "authors": [
+    {
+      "name": "Marco Saßmannshausen",
+      "email": "ms@servicehome.net"
+    }
+  ],
+  "license": [
+    "Apache-2.0"
+  ],
+  "repositories": [],
+  "require": {
+    "php": "~7.1.0"
+  },
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "Servicehome\\TaxRateUpdater\\": ""
+    }
+  }
+}
