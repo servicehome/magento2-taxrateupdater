@@ -2,7 +2,7 @@
 
 ## Installation
 
-For now you habe to add a private repo to your composer.json.
+For now you have to add a private repo to your composer.json.
 
     composer config repositories.servicehome-taxupdater git https://github.com/servicehome/magento2-taxrateupdater.git
 
@@ -42,7 +42,7 @@ There you can setup the update tasks. e.g.
 The first column is an autoindex, dont care.
 
 **tax_rate_id** is a reference to the column "tax_calculation_rate_id" in "tax_calculation_rate". You can find this id
-in the magento backend. Under "Tax Zones and Rates" you can hover of the tax-identifier entries and see the id in the url.
+in the magento backend. Under "Tax Zones and Rates" you can hover over the tax-identifier entries and see the id in the url.
 e.g. in https://demo.test/admin/tax/rate/edit/rate/3/key/31b28b1da272241d25b1acee809f476e090d7c3dad9a7e913b79671934d650da/
 you see the rate/3. 
 
