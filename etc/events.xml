@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+
+    <event name="servicehome_taxupdater_updaterate_after">
+        <observer disabled="true" name="servicehome_taxrate_updated" instance="Servicehome\TaxRateUpdater\Observer\TaxRateUpdatedObserver"/>
+    </event>
+
+    <event name="servicehome_taxupdater_processing_completed">
+        <observer name="servicehome_taxrate_processing_completed"
+                  instance="Servicehome\TaxRateUpdater\Observer\TaxRateUpdateCompletedObserver"/>
+    </event>
+
+</config>
