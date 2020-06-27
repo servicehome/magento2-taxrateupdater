@@ -53,3 +53,21 @@ You should understand this as the earliest point in time, since the time of chan
 **rate_in_percent** is the new tax rate in percent. e.g. 16% => "16"
 
 **was_processed** this is automatically updated when the cronjob is run.
+
+## Configuration Options
+
+/etc/config.xml defaults:
+
+    <module_active>1</module_active>
+    <reindex>0</reindex>
+    <flush_cache>0</flush_cache>
+
+To disable the module set **module_active** to 0.
+
+To reindex the catalog_product_price index after an tax rate update occurs, set **reindex** to 1.
+
+To flush the cache after an tax rate update occurs, set **flush_cache** to 1.
+
+After changing this value you have to flush the config cache.
+
+    ./bin/magento cache:flush config
