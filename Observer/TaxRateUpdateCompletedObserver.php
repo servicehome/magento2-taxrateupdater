@@ -20,6 +20,7 @@ namespace Servicehome\TaxRateUpdater\Observer;
 
 use Exception;
 use InvalidArgumentException;
+use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
@@ -49,17 +50,30 @@ class TaxRateUpdateCompletedObserver implements ObserverInterface
      */
     protected $indexerFactory;
 
-    public function __construct(LoggerInterface $logger, ScopeConfigInterface $scopeConfig, IndexerFactory $indexerFactory)
+    /**
+     * @var Manager
+     */
+    private $cacheManager;
+
+    public function __construct(LoggerInterface $logger,
+                                ScopeConfigInterface $scopeConfig,
+                                IndexerFactory $indexerFactory,
+                                Manager $cacheManager)
     {
         $this->logger = $logger;
         $this->_scopeConfig = $scopeConfig;
         $this->indexerFactory = $indexerFactory;
+        $this->cacheManager = $cacheManager;
     }
 
     public function execute(Observer $observer)
     {
         if ($this->_scopeConfig->isSetFlag('servicehome_taxrateupdater/setup/reindex')) {
             $this->triggerReindexing();
+        }
+
+        if ($this->_scopeConfig->isSetFlag('servicehome_taxrateupdater/setup/flush_cache')) {
+            $this->flushCache();
         }
     }
 
@@ -80,5 +94,12 @@ class TaxRateUpdateCompletedObserver implements ObserverInterface
                 $this->logger->error($e->getMessage());
             }
         }
+    }
+
+    protected function flushCache()
+    {
+        $this->logger->debug("TaxRateUpdateCompletedObserver started cache flushing...");
+
+        $this->cacheManager->flush($this->cacheManager->getAvailableTypes());
     }
 }

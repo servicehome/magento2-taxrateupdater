@@ -8,6 +8,7 @@
             <setup>
                 <module_active>1</module_active>
                 <reindex>0</reindex>
+                <flush_cache>0</flush_cache>
             </setup>
         </servicehome_taxrateupdater>
     </default>
