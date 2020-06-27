@@ -18,14 +18,21 @@
 namespace Servicehome\TaxRateUpdater\Cron;
 
 
+use Exception;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Tax\Api\TaxRateRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Servicehome\TaxRateUpdater\Model\Repository;
 use Servicehome\TaxRateUpdater\Model\Task;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 
 class TaxUpdater
 {
+    const EVENT_TAX_RATE_UPDATED_SUCCESSFULLY = 'servicehome_taxupdater_updaterate_after';
+    const EVENT_TAX_RATE_PROCESSING_COMPLETED = 'servicehome_taxupdater_processing_completed';
+
     /**
      * @var LoggerInterface
      */
@@ -46,17 +53,35 @@ class TaxUpdater
      */
     private $taskRepo;
 
+    /**
+     * @var EventManager
+     */
+    private $eventManager;
+    
+    /**
+     * @var ScopeConfigInterface
+     */
+    protected $_scopeConfig;
+
     public function __construct(LoggerInterface $logger,
+                                ScopeConfigInterface $scopeConfig,
                                 TaxRateRepositoryInterface $taxRateRepo,
-                                Repository $repo)
+                                Repository $repo,
+                                EventManager $eventManager)
     {
         $this->logger = $logger;
+        $this->_scopeConfig = $scopeConfig;
         $this->taxRateRepo = $taxRateRepo;
         $this->taskRepo = $repo;
+        $this->eventManager = $eventManager;
     }
 
     public function execute()
     {
+        if (false === $this->_scopeConfig->isSetFlag('servicehome_taxrateupdater/setup/module_active')) {
+            return;
+        }
+
         if ($this->hasTasks()) {
             $this->logger->debug(sprintf("Handle %d tax-rate update tasks...", $this->task_collection->getTotalCount()));
 
@@ -98,19 +123,22 @@ class TaxUpdater
             try {
                 $taxRate = $this->taxRateRepo->get($task->taxRateId());
                 $taxRate->setRate($task->percent());
-
                 $this->taxRateRepo->save($taxRate);
+
+                $task->markAsProcessed();
+                $this->taskRepo->save($task);
+
+                $this->eventManager->dispatch(self::EVENT_TAX_RATE_UPDATED_SUCCESSFULLY, ['task' => $task]);
+
             } catch (NoSuchEntityException $e) {
                 $this->logger->warning(sprintf("Unknown tax rate identifier! [%d]", $task->taxRateId()));
             } catch (InputException $e) {
                 $this->logger->warning(sprintf("Error on updating tax rate! [%s]", $e->getMessage()));
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->warning(sprintf("Error on updating tax rate! [%s]", $e->getMessage()));
             }
-
-            $task->markAsProcessed();
-            $this->taskRepo->save($task);
         }
 
+        $this->eventManager->dispatch(self::EVENT_TAX_RATE_PROCESSING_COMPLETED);
     }
 }
